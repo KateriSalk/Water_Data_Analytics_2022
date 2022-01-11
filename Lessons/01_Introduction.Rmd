@@ -1,0 +1,98 @@
+---
+title: "1: R Intro and Data Visualization Challenge"
+author: "Water Data Analytics | Kateri Salk"
+date: "Spring 2022"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## Lesson Objectives
+1. Explore components of effective data visualization
+2. Apply R coding skills to create effective visualizations
+3. Review and/or develop skills in R coding and syntax
+
+## Opening Discussion
+
+What makes an effective data visualization? What are the essential components/characteristics, and what are optional but nice-to-have components/characteristics? 
+
+
+## Exploring web resources for visualization
+
+Here are a couple of my favorites. Browse through these to get some useful ideas for R code that will improve the functionality and graphic design of your data visualization: 
+
+[From Data to Viz](https://www.data-to-viz.com/)
+
+[Data Visualization Example from Our Coding Club](https://ourcodingclub.github.io/tutorials/dataviz-beautification/)
+
+
+## A note on color palettes
+
+In general, the ggplot base color palettes are not the most effective option for data visualization. Compiled below is a list of color palettes available in R that may serve your purposes better. Note that when working with multiple colors, you must choose between sequential, diverging, and qualitative color palettes. Under what circumstances might each be useful?
+
+RColorBrewer (package)
+
+* http://colorbrewer2.org
+* https://moderndata.plot.ly/create-colorful-graphs-in-r-with-rcolorbrewer-and-plotly/
+
+viridis and viridisLite (packages)
+
+* https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html
+* https://ggplot2.tidyverse.org/reference/scale_viridis.html
+
+colorRamp (function; comes with base R as part of the grDevices package)
+
+* https://bookdown.org/rdpeng/exdata/plotting-and-color-in-r.html#colorramp
+
+MetBrewer: Palettes inspired by works at the Metropolitan Museum of Art in New York (package)
+
+* https://github.com/BlakeRMills/MetBrewer
+
+
+## Session Set Up
+
+```{r}
+getwd()
+
+# install.packages("tidyverse")
+# install.packages("dataRetrieval")
+# install.packages("zoo")
+# install.packages("ggrepel")
+
+library(tidyverse)
+library(dataRetrieval)
+library(zoo)
+
+```
+
+## Data Visualization Challenge
+
+We will be exploring discharge data for the Eno River, aided by the [dataRetrieval package](https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html). A basic ggplot is provided for you here. Your assignment this week will be to edit the dataset and update the graph with some data visualization best practices. 
+
+```{r}
+# Import data
+EnoDischarge <- readNWISdv(siteNumbers = "02096500",
+                     parameterCd = "00060", # discharge (ft3/s)
+                     startDate = "2012-01-01",
+                     endDate = "2021-12-31")
+
+# Look at the data frame in your Environment tab.
+
+# Renaming columns (one method of multiple)
+names(EnoDischarge)[4:5] <- c("Discharge_cfs", "Approval.Code")
+
+# dataRetrieval also includes attribute information
+attr(EnoDischarge, "variableInfo")
+  # note: imperial, not metric
+attr(EnoDischarge, "siteInfo")
+  
+# Build a ggplot
+EnoPlot <- 
+  ggplot(EnoDischarge, aes(x = Date, y = Discharge_cfs)) +
+         geom_line() +
+         xlab("Year")
+EnoPlot
+```
+
+

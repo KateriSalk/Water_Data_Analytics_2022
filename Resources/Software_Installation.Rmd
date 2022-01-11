@@ -1,0 +1,120 @@
+---
+title: "Software Installation Guide"
+author: "Water Data Analytics | Kateri Salk"
+output: pdf_document
+geometry: margin=2.54cm
+---
+## Course Resources
+
+Water Data Analytics will use two online platforms for course management: Sakai and GitHub. 
+
+## R
+
+If you already have R installed, please ensure you are using version 4.1.2. If not, follow the instructions below. If you do not have R installed, follow the instructions below.
+
+1. Open a web browser and naviate to the Duke CRAN mirror: http://archive.linux.duke.edu/cran/
+2. Please select your operating system (Mac, Windows, Linux)
+
+    * For Windows Users: install the `base package`
+    * For Mac Users: install the package for your current version of OS X. You can find out what version is installed by going to the Apple menu and choosing "About This Mac". The version number of OS X you are using appears directly below the words "OS X."
+    
+3. The default installation options are recommended for most users
+
+**Mac users**:
+Note: the use of X11 (including tcltk) requires XQuartz to be installed since it is no longer part of OS X. Always re-install XQuartz when upgrading your macOS to a new major version. Visit http://archive.linux.duke.edu/cran/ to download.
+
+## RStudio
+
+If you already have RStudio installed, please ensure you are using version 2021.09.1. To check that you are using the most up-to-date version, go to the Help menu in RStudio and select "Check for Updates." You will be instructed to install any updates that are available.
+
+If you do not have RStudio  installed on your computer, please do the following:
+
+1. Open a web browser and naviate to http://www.rstudio.com/products/rstudio/download/
+2. Select and download the appropriate installer for your operating system (Windows, Mac, Linux)
+3. Open the installer and follow the onscreen directions
+4. The default installation options are recommended for most users
+
+## Git
+If you already use Git, please ensure you are using the most up-to-date version.
+If you do not have Git yet installed, please do the following:
+
+1. Open a web browser and naviate to https://git-scm.com/download/
+2. Select the appropriate operating system.
+3. The download should start automatically, or choose Xcode on Mac.
+4. Open the installer and follow the onscreen directions.
+
+  **On Mac**: 
+  
+  You will need to make sure you have Xcode Command Line Tools installed.
+  To test this type `which g++` into Terminal.
+  If you get `/usr/bin/g++` as a reply, then you are ready to move on.
+  
+  **On Windows**: 
+  
+  This process will install Git Bash (msysGit). 
+  During installation, you will be asked to adjust your **PATH environment**.
+  To provide you with the most flexibility, we recommend that you select the option to "Use Git from the Windows Command Prompt". In addition, we recommend that during installation you select "Use OpenSSH" for your secure shell client with GitBash.
+  
+  During installation, you will be asked how to configure the line-ending conversions
+  **On Mac**: We recommend "Checkout as-is, commit Unix-style line endings"
+  **On Windows**: We recommend "Checkout Windows-style, commit Unix-style line endings"
+
+## GitHub
+
+1. Sign up for a GitHub account at https://github.com. You can use your Duke or personal email address.
+2. (OPTIONAL) Sign up for a GitHub Student Pack at https://education.github.com/pack. This comes with options that are not available on the free version of GitHub. 
+3. (OPTIONAL) We will be using the https protocol to clone repositories. Another option is to use SSH keys, which is a more secure option. For a guide on how to generate your own SSH key(s), see this guide: https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh
+    
+## LaTeX
+LaTeX will be used by RStudio and the R package `Knitr` to convert our RMarkdown files (.Rmd) into professional-quality PDF files. 
+If you do not have LaTeX installed on your computer, please do the following: 
+
+**On a Mac**:
+
+1. Install Basic Tex: https://tug.org/mactex/morepackages.html
+2. Note: this will require you to run the commands below (to install `framed` and `titling`).
+
+**On a PC**:
+
+1. Install Basic MiKTeX: http://miktex.org/download.
+2. Note: you need to use the MiKTeX package manager to download required style guides. 
+
+By default, RStudio uses style guides to format our PDF documents. 
+These style guides include framed.sty and titling.sty.
+We have found that not all LaTeX installations include these style guides.
+If you do not have them, you will get an error message when you "Knit".
+To fix this, you need to install the required files.
+
+**On a Mac**:
+
+Type the following in terminal:
+    
+```sh
+tlmgr init-usertree
+tlmgr --usermode install framed
+tlmgr --usermode install titling
+```
+If this option does not work, try using the following commands: 
+
+```sh
+sudo tlmgr update --all
+sudo tlmgr update --self
+```
+
+**On a PC**:
+You have two options:
+  
+1. Open the MikTeX package manager from Start.
+2. Search for and install the following: framed, titling
+    
+    OR
+  
+1. Type the following in command line (or GitBash):
+
+```sh        
+mpm --install framed
+mpm --install titling
+```
+
+If your RMarkdown documents are not knitting properly, try the following troubleshooting option: 
+Go to the Start menu, find the menu "MiKTeX Console", and choose the option `Always install missing packages on-the-fly`

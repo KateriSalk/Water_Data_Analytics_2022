@@ -27,3 +27,4 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 Water_Data_Analytics_2022.Rproj
+.DS_Store

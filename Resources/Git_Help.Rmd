@@ -126,15 +126,15 @@ Your instructor will regularly update the course repository. However, this will 
 
 Type the following commands into the Terminal window in RStudio (bottom left)
 
-`git remote add upstream https://github.com/KateriSalk/Water_Data_Analytics_2022`
+`git remote add upstream https://github.com/KateriSalk/Water_Data_Analytics_2022.git`
 
-`git pull upstream master`
+`git pull upstream main`
 
 An alternate to pull is fetch + merge: 
 
-`git fetch upstream master`
+`git fetch upstream main`
 
-`git merge upstream master`
+`git merge upstream main`
 
 Note: these steps will update your local repository, but will not update your remote. To bring your remote up to date, you will need to push your changes. 
 

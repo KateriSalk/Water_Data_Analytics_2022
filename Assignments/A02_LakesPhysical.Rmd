@@ -1,0 +1,58 @@
+---
+title: "Assignment 2: Physical Properties of Lakes"
+author: "Student Name"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## OVERVIEW
+
+This exercise accompanies the lessons in Water Data Analytics on the physical properties of lakes. 
+
+## Directions
+1. Change "Student Name" on line 3 (above) with your name.
+2. Work through the steps, **creating code and output** that fulfill each instruction.
+3. Be sure to **answer the questions** in this assignment document.
+4. When you have completed the assignment, **Knit** the text and code into a single PDF file.
+5. After completing your assignment, fill out the assignment completion survey in Sakai. 
+
+Having trouble? See the assignment's answer key if you need a hint. Please try to complete the assignment without the key as much as possible - this is where the learning happens!
+
+Target due date: 2022-01-25
+
+## Setup
+
+1. Verify your working directory is set to the R project file, 
+2. Load the tidyverse, lubridate, and rLakeAnalyzer packages
+3. Import the NTL-LTER physical lake dataset and set the date column to the date format. 
+4. Using the `mutate` function, add a column called Month. Remove temperature NAs.
+5. Set your ggplot theme (can be theme_classic or something else)
+
+```{r}
+
+
+```
+
+## Creating and analyzing lake temperature profiles
+
+5. For the year 1993, plot temperature and dissolved oxygen profiles for all six lakes in the dataset (as two separate ggplots). Use the `facet_wrap` function to plot each lake as a separate panel in the plot. Plot day of year as your color aesthetic and use a reverse y scale to represent depth. 
+
+What seasonal trends do you observe, and do these manifest differently in each lake?
+
+```{r}
+
+
+```
+
+6. Create a new dataset that calculates thermocline depths for all lakes on all dates (hint: you will need group by lake, year, month, DOY, and sample date).
+7. Plot thermocline depth by day of year for your newly made dataset. Color each point by lake name, make the points 50% transparent, and choose a color palette other than the ggplot default. 
+8. Create a boxplot of thermocline depth distributions split up by lake name on the x axis and by month as the fill color (hint: you will need to set Month as a factor). Choose a color palette other than the ggplot default, relabel axes and legend, and place the legend on the top of the graph.
+
+Do all the lakes have a similar seasonal progression of thermocline deepening? Which lakes have the deepest thermoclines, and how does this relate to their maximum depth? 
+
+```{r}
+
+```
+

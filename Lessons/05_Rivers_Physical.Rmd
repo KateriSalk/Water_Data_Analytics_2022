@@ -1,0 +1,169 @@
+---
+title: "5: Physical Properties of Rivers"
+author: "Water Data Analytics | Kateri Salk"
+date: "Spring 2022"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## Lesson Objectives
+1. Analyze stormflow hydrographs in the context of baseflow and stormflow
+2. Conduct baseflow separation on discharge data
+3. Diagnose and communicate hydrologic changes in the context of changing baseflows
+
+## Opening Discussion
+
+What might cause streams to have higher peak flow following a precipitation or snowmelt event? 
+
+## Session Set Up
+
+```{r, message = FALSE}
+getwd()
+
+# install.packages("EcoHydRology")
+
+library(EcoHydRology)
+library(tidyverse)
+library(dataRetrieval)
+library(lubridate)
+library(lfstat)
+
+theme_set(theme_classic())
+```
+
+
+## Hydrograph Analysis and Baseflow Separation for the Eno River
+
+Let's import discharge data for the Eno River near Durham for all full water years. This should look familiar based on previous lessons.
+
+```{r}
+EnoDischarge <- readNWISdv(siteNumbers = "02085070",
+                     parameterCd = "00060", # discharge (ft3/s)
+                     startDate = "1963-10-01", 
+                     endDate = "2021-09-30")
+
+names(EnoDischarge)[4:5] <- c("Discharge", "Approval.Code")
+
+attr(EnoDischarge, "variableInfo")
+attr(EnoDischarge, "siteInfo")
+  
+ggplot(EnoDischarge, aes(x = Date, y = Discharge)) +
+  geom_line() +
+  labs(x = "Year", y = "Discharge (cfs)")
+```
+
+Notice that the Eno River is very responsive to precipitation events, with frequent discharge peaks throughout the period of record. How much of the flow of the Eno River is attributed to stormflow pathways (also called quickflow) vs. baseflow?
+
+### Calculating baseflow and stormflow
+
+**Stormflow** is attributed to overland flow and shallow subsurface flow that deliver water quickly to a stream or river of interest. **Baseflow** is attributed to slower flow pathways, including but not limited to groundwater.
+
+The `lfstat` package includes a calculation for baseflow (function: `baseflow`). The `EcoHydRology` package also includes a `BaseflowSeparation` function. Both of these packages have optional specifications that can be tinkered with by the user based on the specific context of the stream of interest. See the help files for these functions for more info.
+
+```{r}
+# calculate baseflow with the lfstat package, and add Year and Water Year
+EnoDischarge <- EnoDischarge %>%
+  mutate(Baseflow_lfstat = baseflow(Discharge), 
+         Stormflow_lfstat = Discharge - Baseflow_lfstat,
+         Year = year(Date), 
+         WaterYear = water_year(Date))
+EnoDischarge$WaterYear <- as.numeric(as.character(EnoDischarge$WaterYear))
+
+# plot baseflow and total flow
+ggplot(EnoDischarge, aes(x = Date, y = Discharge)) +
+  geom_line(color = "gray") +
+  geom_line(aes(y = Baseflow_lfstat)) +
+  # scale_y_log10() +
+  labs(x = "Year", y = "Discharge (cfs)")
+
+# calculate baseflow with the EcoHydRology package.
+# Note: this function creates two columns which can be joined onto the original dataset.
+EnoDischarge_basesep_EcoHydro <- BaseflowSeparation(EnoDischarge$Discharge)
+
+EnoDischarge <- cbind(EnoDischarge, EnoDischarge_basesep_EcoHydro)
+
+# Let's compare the two approaches. How well do they match up, and is one biased a certain way?
+ggplot(EnoDischarge, aes(x = Baseflow_lfstat, y = bt)) +
+  geom_point(alpha = 0.1, size = 1) +
+  geom_abline(slope = 1, intercept = 0, color = "darkred")
+
+# How would we test that statistically? [add code here]
+
+```
+
+### Seasonal and event-based cycles
+
+Let's zoom in on a few recent years to look at how baseflow and stormflow vary across seasonal cycles as well as discrete events. 
+
+[add notes here about our exploration]
+
+```{r}
+EnoDischarge_18_20 <- EnoDischarge %>%
+  filter(WaterYear %in% c(2018:2020))
+
+ggplot(EnoDischarge_18_20, aes(x = Date, y = Discharge)) +
+  geom_line(color = "gray") +
+  geom_line(aes(y = Baseflow_lfstat), color = "darkred") +
+  geom_line(aes(y = bt)) +
+  scale_y_log10() +
+  labs(x = "Year", y = "Discharge (cfs)")
+
+EnoDischarge_ex<- EnoDischarge %>%
+  filter(Date > "2019-07-15" & Date < "2019-09-01")
+
+ggplot(EnoDischarge_ex, aes(x = Date, y = Discharge)) +
+  geom_line(color = "gray") +
+  geom_line(aes(y = Baseflow_lfstat), color = "darkred") +
+  geom_line(aes(y = bt)) +
+  scale_y_log10() +
+  labs(x = "Year", y = "Discharge (cfs)")
+
+```
+
+### Annual statistics
+
+Now, let's calculate some annual flow metrics for the Eno. We can add up daily discharge to calculate annual discharge. 
+
+```{r}
+EnoDischarge_summary <- EnoDischarge %>%
+  group_by(WaterYear) %>%
+  summarise(Discharge.acft.yr = sum(Discharge)*723.968, # what is this factor?
+            Baseflow.acft.yr = sum(bt)*723.968,
+            Stormflow.acft.yr = sum(qft)*723.968,
+            Prop.bf = Baseflow.acft.yr/Discharge.acft.yr,
+            Prop.sf = Stormflow.acft.yr/Discharge.acft.yr) %>%
+ mutate_if(is.numeric, round, 2) # notes here
+
+
+ggplot(EnoDischarge_summary, aes(x = WaterYear, y = Discharge.acft.yr)) +
+  geom_line() +
+  geom_line(aes(y = Baseflow.acft.yr), lty = 2)
+
+ggplot(EnoDischarge_summary, aes(x = WaterYear, y = Prop.bf)) +
+  geom_col()
+
+
+```
+
+## Arkansas River Example: Altered baseflows
+
+Split into two groups. Each group will acquire discharge data and perform a baseflow separation analysis for a gage on the Arkansas River in Kansas. You may choose to use the baseflow function from the `lfstat` or the `EcoHydRology` package. After you've calculated baseflow, create a graph of daily discharge by date and then add baseflow as another line. 
+
+* Group 1: gage 07137500  in Coolidge, Kansas
+* Group 2: gage 07139500 in Dodge City, Kansas
+* Both groups: Daily mean discharge
+* Both groups: 1960-2005
+
+After you've completed your task, find a partner who analyzed the other gage. Compare the patterns in discharge and baseflow between the two sites. Work together to make a diagnosis of what could be happening over time in the Arkansas River (hint: the Coolidge site is upstream of the Dodge City site). 
+
+[Add notes here from your discussion with your partner and our discussion as a class]
+
+This exercise is based off a case study in Zimmer et al. 2020: (Zero or not? Causes and consequences of zero-flow stream gage  readings)[https://wires.onlinelibrary.wiley.com/doi/10.1002/wat2.1436]
+
+```{r}
+
+
+```
+

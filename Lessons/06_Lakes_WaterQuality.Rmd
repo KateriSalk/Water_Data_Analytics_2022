@@ -1,0 +1,222 @@
+---
+title: "6: Water Quality in Lakes"
+author: "Water Data Analytics | Kateri Salk"
+date: "Spring 2022"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## Lesson Objectives
+1. Navigate and explore the LAGOSNE database and R package
+2. Evaluate lake water quality using the trophic state index
+3. Analyze spatial and temporal patterns of water quality across the northeast U.S.
+
+## Opening Discussion
+What are the major water quality impairments experienced in lakes?  
+
+## Session Set Up
+
+```{r}
+getwd()
+
+library(tidyverse)
+library(lubridate)
+#install.packages("LAGOSNE")
+library(LAGOSNE)
+
+theme_set(theme_classic())
+options(scipen = 100)
+
+lagosne_get(dest_folder = LAGOSNE:::lagos_path(), overwrite = TRUE)
+
+```
+
+## Getting to know the LAGOSNE database
+Navigate to https://lagoslakes.org/. We will explore this website to learn about the LAGOS-NE dataset, research, and data management and use initiatives undergone by the resaerch team. 
+
+<add any pertinent notes here>
+
+Useful introductions to the LAGOSNE R Package can be found here: 
+
+https://github.com/cont-limno/LAGOSNE
+https://cont-limno.github.io/LAGOSNE/articles/lagosne_structure.html
+
+```{r}
+# Load LAGOSNE data into R session
+LAGOSdata <- lagosne_load()
+names(LAGOSdata)
+
+# If the package installation and data download has not worked, use this code: 
+# load(file = "./Data/Raw/LAGOSdata.rda")
+
+# Exploring the data types that are available
+LAGOSlocus <- LAGOSdata$locus
+LAGOSstate <- LAGOSdata$state
+LAGOSnutrient <- LAGOSdata$epi_nutr
+
+# Tell R to treat lakeid as a factor, not a numeric value
+LAGOSlocus$lagoslakeid <- as.factor(LAGOSlocus$lagoslakeid)
+LAGOSnutrient$lagoslakeid <- as.factor(LAGOSnutrient$lagoslakeid)
+```
+
+## Wrangling data frames in LAGOSNE
+
+LAGOSNE is stored in several pieces, comprising metadata about given lakes (one observation per lake), metadata about each state (one observation per state), and data collected from lakes (one to many observations per lake over time). To connect observations from one data frame to the next, we need to find a common variable between the data frames.
+
+For example, let's find out how many lakes are in each state. Note that LAGOSlocus only includes the state_zoneid, whereas  LAGOSstate connects state_zoneid for each state.
+
+
+```{r}
+# Join data frames
+LAGOSlocations <- left_join(LAGOSlocus, LAGOSstate, by = "state_zoneid")
+
+ggplot(LAGOSlocations, aes(x = state)) + 
+  geom_bar(stat = "count")
+
+ggplot(LAGOSlocations, aes(x = state, y = lake_area_ha)) + 
+  geom_boxplot() +
+  scale_y_log10()
+
+```
+
+## Trophic state as a metric for water quality
+Robert Carlson's 1977 paper, "A trophic state index for lakes," established the first numeric categorization system for a lake's **trophic state**, the amount of biomass a given system can sustain. Trophic state is a useful water quality metric, as it can give insight into the propensity of a system to develop algal blooms, the degree of nutrient loading in the system, and a range of other potential water quality concerns experienced by other lakes with a similar trophic state (e.g., hypoxia).
+
+To calculate the **Trophic State Index**, three variables can be used. Note these should not be used to define trophic state but as indicators of the broader condition. Comparing these values in a given lake can give insight into the broader mechanisms at play.
+
+* *chlorophyll a concentration*, a proxy for algal (phytoplankton) biomass. Pros: direct measure of primary productivity
+* *Secchi disk transparency*, a measure of water clarity. Pros: simple and cheap. Cons: may yield a high TSI in highly colored lakes and in lakes where particulate matter is comprised of non-algal material 
+* *Total phosphorus (TP)*, a nutrient essential for growth of primary producers. Assumptions: phosphorus is the limiting nutrient for phytoplankton growth (this assumption often holds only for summer months)
+
+$TSI(Chl) = 10(6 - (2.04 - 0.68 ln Chl/ln 2))$
+
+$TSI(SD) = 10(6 - (ln SD/ln 2))$
+
+$TSI(TP) = 10(6 - (ln(48/TP)/ln 2))$
+
+TSI values correspond to the following trophic states: 
+**0-40**: Oligotrophic
+**40-50**: Mesotrophic
+**50-70**: Eutrophic
+**70-100**: Hypereutrophic
+
+### Exploring the LAGOS nutrient data frame
+```{r}
+dim(LAGOSnutrient)
+class(LAGOSnutrient$sampledate)
+
+LAGOStrophic <- LAGOSnutrient %>%
+  left_join(., LAGOSlocations, by = "lagoslakeid") %>%
+  select(lagoslakeid, sampledate, chla, tp, secchi, 
+         gnis_name, lake_area_ha, state, state_name) %>%
+  mutate(sampleyear = year(sampledate), 
+         samplemonth = month(sampledate)) %>%
+  drop_na(chla, tp, secchi, state)
+
+```
+
+Let's look at observations of chl, secchi depth, and TP seasonally and over the period of study.
+
+Add a line of code to facet the graphs by state.
+```{r}
+ggplot(LAGOStrophic, aes(x = as.factor(samplemonth), y = chla)) +
+  geom_jitter(alpha = 0.2, size = 0.5) +
+  geom_boxplot(outlier.shape = NA, color = "#1f968b", fill = NA) +
+  scale_y_log10() +
+  labs(x = "Month", y = expression("Chl a ("*mu*"g/L)"))
+
+ggplot(LAGOStrophic, aes(x = as.factor(samplemonth), y = secchi)) +
+  geom_jitter(alpha = 0.2, size = 0.5) +
+  geom_boxplot(outlier.shape = NA, color = "#1f968b", fill = NA) +
+  scale_y_log10() +
+  labs(x = "Month", y = "Secchi depth (m)") 
+
+ggplot(LAGOStrophic, aes(x = as.factor(samplemonth), y = tp)) +
+  geom_jitter(alpha = 0.2, size = 0.5) +
+  geom_boxplot(outlier.shape = NA, color = "#1f968b", fill = NA) +
+  scale_y_log10() +
+  labs(x = "Month", y = expression("TP ("*mu*"g/L)"))
+```
+
+What do you notice about the seasonality of these variables? If we were to characterize a lake based on the value of a given variable, how might seasonality affect our interpretations?
+
+>
+
+### Calculating trophic state index
+
+Let's add a TSI value calculated from each of the three variables to the data frame. Let's also add a column that designates the lake as oligotrophic, mesotrophic, eutrophic, or hypereutrophic based on the TSI.chl value. 
+
+```{r}
+LAGOStrophic <- LAGOStrophic %>%
+  filter(samplemonth %in% c(5:9)) %>%
+  mutate(TSI.chl = round(10*(6 - (2.04 - 0.68*log(chla)/log(2)))),
+         TSI.secchi = round(10*(6 - (log(secchi)/log(2)))), 
+         TSI.tp = round(10*(6 - (log(48/tp)/log(2)))), 
+         trophic.class = case_when(TSI.chl < 40 ~ "Oligotrophic",
+                                   TSI.chl >= 40 & TSI.chl < 50 ~ "Mesotrophic",
+                                   TSI.chl >= 50 & TSI.chl< 70 ~ "Eutrophic",
+                                   TSI.chl >= 70 ~ "Hypereutrophic"))
+
+class(LAGOStrophic$trophic.class)
+
+LAGOStrophic$trophic.class <- factor(LAGOStrophic$trophic.class,
+                                     levels = c("Oligotrophic", "Mesotrophic", "Eutrophic", "Hypereutrophic"))
+
+#scales::show_col(colormap(colormap = colormaps$magma, nshades=16))
+
+# Let's save the LAGOStrophic dataset as a csv in our Data folder. 
+
+write.csv(LAGOStrophic, file = "./Data/Processed/LAGOStrophic.csv", row.names = FALSE)
+```
+
+Now let's compare TSI values calculated from chl, secchi depth, and TP. If these were all perfectly equivalent metrics, all points should line up on the 1:1 line. 
+
+```{r}
+
+ggplot(LAGOStrophic, aes(x = TSI.chl, y = TSI.secchi, color = samplemonth)) +
+  geom_point(alpha = 0.1) + 
+  scale_y_continuous(limits = c(0, 100)) +
+  scale_x_continuous(limits = c(0, 100)) +
+  geom_abline(slope = 1, intercept = 0) +
+  scale_color_viridis_c(option = "magma", end = 0.8, direction = -1) +
+  theme(legend.position = "top")
+
+ggplot(LAGOStrophic, aes(x = TSI.chl, y = TSI.tp, color = samplemonth)) +
+  geom_point(alpha = 0.1) + 
+  scale_y_continuous(limits = c(0, 100)) +
+  scale_x_continuous(limits = c(0, 100)) +
+  geom_abline(slope = 1, intercept = 0) +
+  scale_color_viridis_c(option = "magma", end = 0.8, direction = -1) +
+  theme(legend.position = "top")
+
+```
+
+What is the observed relationship, and how does it depart from the 1:1 relationship? What do values above or below the 1:1 line tell us about the conditions present in a lake? (see NALMS description)[https://www.nalms.org/secchidipin/monitoring-methods/trophic-state-equations/]
+
+> 
+
+### Comparing TSI across states
+
+Here are two different ways to visualize TSI across the states in the LAGOS-NE database. 
+
+Exercise: create a data frame summarizing the count of each trophic class by state. Then, recreate the bar plot but with relative proportions of lakes in each trophic class (adding up to 1, stacked on top of each other) rather than counts.
+
+```{r}
+ggplot(LAGOStrophic, aes(x = state, y = TSI.chl)) +
+  geom_violin(draw_quantiles = 0.50) +
+  geom_hline(yintercept = 40, lty = 2, color = "gray") +
+  geom_hline(yintercept = 50, lty = 2, color = "gray") +
+  geom_hline(yintercept = 70, lty = 2, color = "gray")
+
+ggplot(LAGOStrophic, aes(x = state, fill = trophic.class)) +
+  geom_bar(stat = "count", position = position_dodge(preserve = "single")) +
+  theme(legend.position = "top") +
+  labs(x = "", y = "Number of Observations", fill = "Trophic Class") +
+  scale_fill_viridis_d(option = "magma", begin = 0.2, end = 0.8, direction = -1)
+
+```
+
+## Closing Discussion
+What factors might you expect to influence trophic state in a given lake? What are some variables in the LAGOSNE database that could help you test your hypothesis?

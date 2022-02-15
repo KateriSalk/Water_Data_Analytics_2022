@@ -1,0 +1,99 @@
+---
+title: "Assignment 5: Water Quality in Lakes"
+author: "Student Name"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## OVERVIEW
+
+This exercise accompanies the lessons in Water Data Analytics on water quality in lakes
+
+## Directions
+1. Change "Student Name" on line 3 (above) with your name.
+2. Work through the steps, **creating code and output** that fulfill each instruction.
+3. Be sure to **answer the questions** in this assignment document.
+4. When you have completed the assignment, **Knit** the text and code into a single PDF file.
+5. After Knitting, check your PDF against the key and then submit your assignment completion survey at https://forms.gle/fSe18vMhgzcjUKM39
+
+Having trouble? See the assignment's answer key if you need a hint. Please try to complete the assignment without the key as much as possible - this is where the learning happens!
+
+Target due date: 2022-02-22
+
+## Setup
+
+1. Verify your working directory is set to the R project file. Load the tidyverse, lubridate, and LAGOSNE packages. Set your ggplot theme (can be theme_classic or something else)
+2. Load the LAGOSdata database and the trophic state index csv file we created in class.
+
+```{r setup}
+
+```
+
+## Trophic State Index
+
+3. Similar to the trophic.class column we created in class (determined from TSI.chl values), create two additional columns in the data frame that determine trophic class from TSI.secchi and TSI.tp (call these trophic.class.secchi and trophic.class.tp). 
+
+```{r}
+
+```
+
+
+4. How many observations fall into the four trophic state categories for the three metrics (trophic.class, trophic.class.secchi, trophic.class.tp)? Hint: `n()` function.
+
+```{r}
+
+```
+
+5. What proportion of total observations are considered eutrophic or hypereutrophic according to the three different metrics (trophic.class, trophic.class.secchi, trophic.class.tp)?
+
+```{r}
+
+```
+
+Which of these metrics is most conservative in its designation of eutrophic conditions? Why might this be?
+
+> 
+
+
+## Nutrient Concentrations
+
+6. Create a data frame that includes the columns lagoslakeid, sampledate, tn, tp, state, and state_name. Mutate this data frame to include sampleyear and samplemonth columns as well. Filter the data frame for May-September. Call this data frame LAGOSNandP. 
+
+```{r}
+
+```
+
+7. Create two violin plots comparing TN and TP concentrations across states. Include a 50th percentile line inside the violins. Create a logged y axis and relabel axes.
+```{r}
+
+```
+
+Which states have the highest and lowest median concentrations?
+
+> TN:
+
+> TP:
+
+Which states have the largest and smallest concentration ranges?
+
+> TN: 
+
+> TP: 
+
+8. Create two jitter plots comparing TN and TP concentrations across states, with samplemonth as the color. Choose a color palette other than the ggplot default.
+
+```{r}
+
+```
+
+Which states have the most samples? How might this have impacted total ranges from #7?
+
+> TN:
+
+> TP: 
+
+
+
+

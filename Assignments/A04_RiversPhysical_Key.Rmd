@@ -1,0 +1,133 @@
+---
+title: "Assignment 4: Physical Properties of Rivers"
+author: "Student Name"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## OVERVIEW
+
+This exercise accompanies the lessons in Water Data Analytics on the physical properties of rivers. 
+
+## Directions
+1. Change "Student Name" on line 3 (above) with your name.
+2. Work through the steps, **creating code and output** that fulfill each instruction.
+3. Be sure to **answer the questions** in this assignment document.
+4. When you have completed the assignment, **Knit** the text and code into a single PDF file.
+5. After Knitting, check your PDF against the key and then submit your assignment completion survey at https://forms.gle/futQwtCsyYsZG9nCA
+
+Having trouble? See the assignment's answer key if you need a hint. Please try to complete the assignment without the key as much as possible - this is where the learning happens!
+
+Target due date: 2022-02-15
+
+## Setup and Data Processing
+
+1. Verify your working directory is set to the R project file. Load the tidyverse, cowplot, dataRetrieval, lubridate, lfstat, and EcoHydRology packages. Set your ggplot theme (can be theme_classic or something else).
+2. Acquire daily mean discharge data for the Bitterroot River in Montana (USGS gage 12344000) and the Nehalem River in Oregon (USGS gage 14299800). Collect the 10 most recent complete water years.
+3. Add columns in the dataset for water year, baseflow, and stormflow. Feel free to use either baseflow separation function we used in class. 
+4. Calculate annual total discharge, annual baseflow, and annual proportion baseflow for the two sites.
+
+```{r}
+getwd()
+
+library(EcoHydRology)
+library(tidyverse)
+library(cowplot)
+library(dataRetrieval)
+library(lubridate)
+library(lfstat)
+
+theme_set(theme_classic())
+
+BitterrootDischarge <- readNWISdv(siteNumbers = "12344000",
+                     parameterCd = "00060", # discharge (cfs)
+                     startDate = "2012-10-01",
+                     endDate = "2021-09-30")
+names(BitterrootDischarge)[4:5] <- c("Discharge", "Approval.Code")
+
+NehalemDischarge <- readNWISdv(siteNumbers = "14299800",
+                     parameterCd = "00060", # discharge (cfs)
+                     startDate = "2012-10-01",
+                     endDate = "2021-09-30")
+names(NehalemDischarge)[4:5] <- c("Discharge", "Approval.Code")
+
+BitterrootDischarge <- BitterrootDischarge %>%
+  mutate(WaterYear = water_year(Date),
+         Baseflow_lfstat = baseflow(Discharge), 
+         Stormflow_lfstat = Discharge - Baseflow_lfstat)
+BitterrootDischarge$WaterYear <- as.numeric(as.character(BitterrootDischarge$WaterYear))
+
+NehalemDischarge <- NehalemDischarge %>%
+  mutate(WaterYear = water_year(Date),
+         Baseflow_lfstat = baseflow(Discharge), 
+         Stormflow_lfstat = Discharge - Baseflow_lfstat)
+NehalemDischarge$WaterYear <- as.numeric(as.character(NehalemDischarge$WaterYear))
+
+BitterrootSummary <- BitterrootDischarge %>%
+  group_by(WaterYear) %>%
+  summarise(Discharge.acft.yr = sum(Discharge, na.rm = TRUE)*723.968,
+            Baseflow.acft.yr = sum(Baseflow_lfstat, na.rm = TRUE)*723.968,
+            Baseflow.prop = Baseflow.acft.yr/Discharge.acft.yr) %>%
+   mutate_if(is.numeric, round, 2) # notes here
+
+NehalemSummary <- NehalemDischarge %>%
+  group_by(WaterYear) %>%
+  summarise(Discharge.acft.yr = sum(Discharge, na.rm = TRUE)*723.968,
+            Baseflow.acft.yr = sum(Baseflow_lfstat, na.rm = TRUE)*723.968,
+            Baseflow.prop = Baseflow.acft.yr/Discharge.acft.yr) %>%
+   mutate_if(is.numeric, round, 2) # notes here
+
+```
+
+## Analyze seasonal patterns in discharge
+
+5. For both sites, create a graph displaying discharge and baseflow by date. Adjust axis labels accordingly.
+6. For both sites, create a graph displaying annual total discharge and annual baseflow across years, and a second graph displaying the proportion baseflow across years (adjust axis labels accordingly). Plot these graphs on top of one another using `plot_grid`. Remember to align the axes!
+
+```{r}
+ggplot(BitterrootDischarge, aes(x = Date, y = Discharge)) +
+  geom_line(aes(color = "Total")) +
+  geom_line(aes(y = Baseflow_lfstat, color = "Baseflow")) +
+  scale_color_manual(values = c("Total" = "black", "Baseflow" = "gray")) +
+  labs(x = "Year", y = "Discharge (cfs)", color = "") +
+  theme(legend.position = "top")
+
+ggplot(NehalemDischarge, aes(x = Date, y = Discharge)) +
+  geom_line(aes(color = "Total")) +
+  geom_line(aes(y = Baseflow_lfstat, color = "Baseflow")) +
+  scale_color_manual(values = c("Total" = "black", "Baseflow" = "gray")) +
+  labs(x = "Year", y = "Discharge (cfs)", color = "") +
+  theme(legend.position = "top")
+
+Byear <- ggplot(BitterrootSummary, aes(x = WaterYear, y = Discharge.acft.yr)) +
+  geom_line() +
+  geom_line(aes(y = Baseflow.acft.yr), lty = 2) +
+  labs(x = "", y = "Discharge (ac*ft/yr)") +
+  scale_x_continuous(breaks = c(2012, 2014, 2016, 2018, 2020))
+
+Bprop <- ggplot(BitterrootSummary, aes(x = WaterYear, y = Baseflow.prop)) +
+  geom_col(fill = "black") +
+  labs(x = "Water Year", y = "Baseflow prop.") +
+  scale_x_continuous(breaks = c(2012, 2014, 2016, 2018, 2020))
+
+plot_grid(Byear, Bprop, align = "hv", ncol = 1)
+
+Nyear <- ggplot(NehalemSummary, aes(x = WaterYear, y = Discharge.acft.yr)) +
+  geom_line() +
+  geom_line(aes(y = Baseflow.acft.yr), lty = 2) +
+  labs(x = "", y = "Discharge (ac*ft/yr)") +
+  scale_x_continuous(breaks = c(2012, 2014, 2016, 2018, 2020))
+
+Nprop <- ggplot(NehalemSummary, aes(x = WaterYear, y = Baseflow.prop)) +
+  geom_col(fill = "black") +
+  labs(x = "Water Year", y = "Baseflow prop.") +
+  scale_x_continuous(breaks = c(2012, 2014, 2016, 2018, 2020))
+
+plot_grid(Nyear, Nprop, align = "hv", ncol = 1)
+```
+
+7. How do these rivers differ in their discharge and baseflow, both within and across years? How would you attribute these patterns to the climatic conditions in these locations?
+
+> In the Bitterroot, most of the spring snowmelt is separated into baseflow. There, we see baseflow closely follow discharge patterns, with summer precipitation events attributed almost wholly to stormflow. The majority of discharge each year (2/3 to 3/4) is considered baseflow, which makes sense considering that snowmelt makes up the majority of seasonal discharge and most of the snowmelt was sorted into baseflow. In the Nehalem, baseflow also peaks during highest discharge, but we see that the wet season appears to be dominated by rain, with stormflow peaks clearly visible. About half of the discharge in the Nehalem is attributed to baseflow. In both systems, baseflow is lowest in the summer, and annual baseflow rises and lowers with total discharge. 

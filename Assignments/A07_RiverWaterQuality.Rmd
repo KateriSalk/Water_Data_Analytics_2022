@@ -1,0 +1,97 @@
+---
+title: "Assignment 7: Water Quality in Rivers"
+author: "Student Name"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## OVERVIEW
+
+This exercise accompanies the lessons in Water Data Analytics on water quality in rivers.
+
+## Directions
+1. Change "Student Name" on line 3 (above) with your name.
+2. Work through the steps, **creating code and output** that fulfill each instruction.
+3. Be sure to **answer the questions** in this assignment document.
+4. When you have completed the assignment, **Knit** the text and code into a single PDF file.
+5. After Knitting, check your PDF against the key and then submit your assignment completion survey at https://forms.gle/AF6vXHWbeQGEnHpNA
+
+Having trouble? See the assignment's answer key if you need a hint. Please try to complete the assignment without the key as much as possible - this is where the learning happens!
+
+Target due date: 2022-03-22
+
+## Setup
+
+1. Verify your working directory is set to the R project file. Load the tidyverse, lubridate, cowplot, and dataRetrieval packages. Set your ggplot theme (can be theme_classic or something else)
+
+
+```{r}
+
+```
+
+## Hypoxia
+
+This assignment will look at another measure of water quality - oxygen concentration. Oxygen in the water column is very important for aquatic life, and so is considered a measure of water quality. Hypoxia (low oxygen) has many different definitions. For this assignment, we will use 2 mg/L O~2~ as our cut-off.
+
+
+2. Import the oxygen water quality data from New Hope Creek at Blands (using `readWQPqw()`, site code `USGS-02097314`, parameter code `00300`). Make a data frame called `NewHopeDO` that includes only the Date and dissolved oxygen concentration values. Rename the column names "Date" and "DO_mgL".
+
+```{r}
+
+
+```
+
+3. Create a ggplot of oxygen concentrations over time. Include a horizonal line at 2 mg/l to show the hypoxia cutoff. 
+
+```{r}
+
+
+```
+
+4. What do you notice about the frequency of hypoxia over time?
+
+> 
+
+## Nutrients
+
+5. Often times hypoxia is associated with high nutrient concentrations, because abundant nutrients promote primary production which in turn increases respiration and depletes oxygen concentrations in the water (remember how oxygen concentrations were very low in the hypolimnion from the Physical Properties of Lakes week). Create a new data frame, called `NewHopeTP` with total phosphorus (parameter code `00665`) data from the same site Your data frame should have 2 columns: "Date" and "TP_mgL".
+
+
+```{r}
+
+
+```
+
+6.  Create two ggplots stacked with `plot_grid` that show DO and TP concentrations over time.
+
+```{r}
+
+
+
+```
+
+7. What do these plots tell you about nutrient concentrations over time? How might nutrient concentrations relate to your previous plot of hypoxia events?
+
+> 
+
+## Discharge and Dissolved Oxygen
+
+8. Turbulent flow in rivers mixes oxygen into the water column. As discharge decreases, water moves slower, and oxygen diffuses slower into the water from the atmosphere. Download and reformat the daily discharge data for New Hope Creek (function `readNWISdv()`, site `02097314`, parameter `00060`). 
+
+```{r}
+
+
+```
+
+9.  Create two ggplots stacked with `plot_grid` that show DO concentrations and discharge over time, for the two years we observed hypoxia (1983 and 1984).
+
+```{r}
+
+
+```
+
+10. Do hypoxic events happen in the wet or the dry season? Why might that be?
+
+> 

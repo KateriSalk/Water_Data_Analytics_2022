@@ -1,0 +1,88 @@
+---
+title: "Assignment 8: Time Series Analysis"
+author: "Student Name"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## OVERVIEW
+
+This exercise accompanies the lessons in Water Data Analytics on time series analysis
+
+## Directions
+1. Change "Student Name" on line 3 (above) with your name.
+2. Work through the steps, **creating code and output** that fulfill each instruction.
+3. Be sure to **answer the questions** in this assignment document.
+4. When you have completed the assignment, **Knit** the text and code into a single PDF file.
+5. After Knitting, check your PDF against the key and then submit your assignment completion survey at https://forms.gle/dKEutwXiFewkSTwN9
+
+Having trouble? See the assignment's answer key if you need a hint. Please try to complete the assignment without the key as much as possible - this is where the learning happens!
+
+Target due date: 2022-03-29
+
+## Setup
+
+1. Verify your working directory is set to the R project file. Load the tidyverse, lubridate, trend, forecast, and dataRetrieval packages. Set your ggplot theme (can be theme_classic or something else).
+
+
+```{r setup}
+
+```
+
+## Data Import and Processing
+
+2. Import discharge data (parameter 00060) from Clear Creek, Colorado (site 06719505) from the start of 1975 through the end of 2021.
+3. Graph Clear Creek discharge over time. 
+4. Create a new data frame with the sum of monthly discharge in acre-feet per month.
+
+```{r}
+
+```
+
+
+## Time Series Decomposition
+5. Create a time series of discharge from the monthly data frame. Make sure to add start and end dates like we did in class.
+6. Decompose the time series using the `stl` function.
+7. Visualize the decomposed time series.
+
+```{r}
+
+
+```
+
+8. How do the seasonal and trend components of the decomposition compare to the Neuse River discharge dataset? 
+
+> Seasonal: 
+
+> Trend: 
+
+## Trend Analysis
+Research question: Has there been a monotonic trend in discharge in Clear Creek over the period of study?
+
+9. Run a Seasonal Mann-Kendall test on the monthly discharge data. Inspect the overall trend and the monthly trends. 
+
+```{r}
+
+```
+
+10. Is there an overall monotonic trend in discharge over time? Are there monthly trends over time? If so, are they positive or negative?
+
+> 
+
+
+## Forecasting
+Research question: can we predict discharge in Clear Creek moving into the future?
+
+11. Run the auto.arima function on the Clear Creek time series to search for the best fit. Create an object that defines the best fit model. 
+12. Make a prediction into the future and plot the future predictions. 
+
+```{r}
+ 
+
+```
+
+13. How did the forecasting for Clear Creek compare to the Neuse River?
+
+> 

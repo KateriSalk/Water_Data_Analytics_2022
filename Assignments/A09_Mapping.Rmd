@@ -1,0 +1,62 @@
+---
+title: "Assignment 9: Mapping"
+author: "Student Name"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## OVERVIEW
+
+This exercise accompanies the lessons in Water Data Analytics on mapping
+
+## Directions
+1. Change "Student Name" on line 3 (above) with your name.
+2. Work through the steps, **creating code and output** that fulfill each instruction.
+3. Be sure to **answer the questions** in this assignment document.
+4. When you have completed the assignment, **Knit** the text and code into a single PDF file.
+5. After Knitting, check your PDF against the key and then submit your assignment completion survey at https://forms.gle/NDWEUu73LooFJPVM8 
+
+Having trouble? See the assignment's answer key if you need a hint. Please try to complete the assignment without the key as much as possible - this is where the learning happens!
+
+Target due date: 2022-04-12
+
+## Setup
+
+1. Load the tidyverse, LAGOSNE, maps, dataRetrieval, sf, and nhdplusTools packages. Set your ggplot theme (can be theme_classic or something else).
+
+
+```{r setup}
+
+```
+
+## LAGOS-NE
+
+2. Choose five lakes in the LAGOS-NE database that are located within the same state and have chlorophyll data. Subset your data accordingly, and create two plots:
+
+* A map of the five lakes within the state boundary, with each lake point as its own color.
+* A boxplot with jittered points layered on top of chlorophyll concentrations in each lake (chlorophyll on y axis, lake on x axis), with each lake having a fill and/or color that matches the map. 
+
+```{r}
+
+
+```
+
+
+## NHDPlus
+
+3. Delineate and map the watershed and flowpaths in the network upstream of the Eno River gage in Durham (USGS-02085070). Your map should include all stream orders.
+
+
+```{r}
+
+
+```
+
+4. What is the upstream drainage area for this gage, and how are the flowpaths distributed with regard to stream order?
+
+> 
+
+5. Are there any other gage sites in the upstream catchment? If so, where are they?
+> 
